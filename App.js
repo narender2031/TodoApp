@@ -8,6 +8,7 @@
 
 import React from 'react';
 import {SafeAreaView, StyleSheet, Text} from 'react-native';
+import TodoScreen from './src/screens/TodoScreen';
 
 
 // realM
@@ -39,14 +40,10 @@ class App extends React.Component {
   }
 
   render() {
-    const info = this.state.realm
-      ? 'Total Dogs I have ' + this.state.realm.objects('Dog').length
-      : 'Loading...';
-
     return (
       <>
         <SafeAreaView style={styles.body}>
-          <Text>{info}</Text>
+          <TodoScreen />
         </SafeAreaView>
       </>
     );
