@@ -7,13 +7,12 @@
  */
 
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 import TodoScreen from './src/screens/TodoScreen';
+import {TodoSchema, SectionSchema} from './src/models/schema';
+import MyProvider from './src/context/MyProvider';
 
-
-// realM
 const Realm = require('realm');
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -22,11 +21,9 @@ class App extends React.Component {
 
   componentDidMount() {
     Realm.open({
-      schema: [{name: 'Dog', properties: {name: 'string'}}],
+      schema: [TodoSchema, SectionSchema],
+      deleteRealmIfMigrationNeeded: true,
     }).then(realm => {
-      realm.write(() => {
-        realm.create('Dog', {name: 'Rex'});
-      });
       this.setState({realm});
     });
   }
@@ -43,7 +40,9 @@ class App extends React.Component {
     return (
       <>
         <SafeAreaView style={styles.body}>
-          <TodoScreen />
+          <MyProvider value={this.state.realm}>
+            <TodoScreen />
+          </MyProvider>
         </SafeAreaView>
       </>
     );

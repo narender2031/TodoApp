@@ -3,11 +3,19 @@
 import * as React from 'react';
 import {SafeAreaView, Text, StyleSheet, View} from 'react-native';
 import {withTheme, Button, TextInput} from 'react-native-paper';
-// Declare RealM
-const Realm = require('realm');
+import MyContext from '../context/MyContext';
+import RNPickerSelect from 'react-native-picker-select';
+
+// @TODO:
+// Create Todo with sections
+// user context
+const data = [
+  {label: 'Personal', value: 'personal'},
+  {label: 'Office', value: 'office'},
+];
 
 class TodoScreen extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       text: null,
@@ -15,19 +23,36 @@ class TodoScreen extends React.Component {
       createdAt: null,
       updatedAt: null,
       status: null,
+      section: null,
     };
+  }
+
+  // read the todos
+  // get last todo
+  //
+  getUniqueId() {
+    let string = 'abcdefghijklmnopqrstuvwxyz';
+    let str = '';
+    for (let i = 1; i <= 6; i++) {
+      let randomCharacter = string.charAt(
+        Math.floor(Math.random() * string.length),
+      );
+      str += randomCharacter;
+    }
+    return str;
   }
 
   handleClick() {
     const {title, text} = this.state;
     const todoObject = {
+      id: this.getUniqueId(),
       title: title,
       text: text,
       createdAt: new Date(),
       updatedAt: new Date(),
       status: 'pending',
     };
-    console.log(todoObject);
+
     this.setState({
       text: null,
       title: null,
@@ -35,58 +60,96 @@ class TodoScreen extends React.Component {
       updatedAt: null,
       status: null,
     });
-    this.createTodo(todoObject);
+    this.createSectionsOrTodo(todoObject);
   }
 
-  async createTodo(todoData) {
-    try {
-      Realm.write(() => {
-        Realm.create('Todo', todoData);
-        console.log("succcess");
+  static contextType = MyContext;
 
+  async createSectionsOrTodo(todoData) {
+    try {
+      this.context.realm.write(() => {
+        console.log(todoData);
+        let section = this.context.realm.create(
+          'Section',
+          {
+            title: this.state.section,
+            id: this.getUniqueId(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          true,
+        );
+        section.todos.push(todoData);
       });
     } catch (error) {
       console.log(error);
+    } 
+  }
+
+  async createTodo(todoData, sections) {
+    try {
+      // let section = this.context.realm
+      //   .objects('Section')
+      //   .filtered(`title = "${this.state.section}"`);
+      console.log(sections);
+      let section = sections.find(
+        record => record.title === this.state.section,
+      );
+
+      console.log(section, 'sections');
+      this.context.realm.write(() => {
+        section.todos.push(todoData);
+        console.log('success');
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log(sections);
     }
   }
 
   render() {
     const {colors} = this.props.theme;
-
     return (
-      <>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.headerContainer}>
-            <Text style={{color: colors.primary}}>Hello</Text>
-          </View>
-          <View style={styles.formContainer}>
-            <TextInput
-              label="Title"
-              value={this.state.title}
-              onChangeText={title => this.setState({title})}
-              mode="outlined"
-              style={styles.formTextInput}
-            />
-            <TextInput
-              label="Text"
-              value={this.state.text}
-              onChangeText={text => this.setState({text})}
-              mode="outlined"
-              multiline={true}
-              numberOfLines={4}
-              style={styles.formTextArea}
-            />
-            <Button
-              raised
-              theme={{roundness: 3}}
-              mode="contained"
-              style={styles.button}
-              onPress={() => this.handleClick()}>
-              Create Todo
-            </Button>
-          </View>
-        </SafeAreaView>
-      </>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Text style={{color: colors.primary}}>Create Todo</Text>
+        </View>
+        <View style={styles.formContainer}>
+          <RNPickerSelect
+            onValueChange={value => this.setState({section: value})}
+            items={data}
+            placeholder={{
+              label: 'Select the section',
+              value: null,
+            }}
+          />
+          <TextInput
+            label="Title"
+            value={this.state.title}
+            onChangeText={title => this.setState({title})}
+            mode="outlined"
+            style={styles.formTextInput}
+          />
+          <TextInput
+            label="Text"
+            value={this.state.text}
+            onChangeText={text => this.setState({text})}
+            mode="outlined"
+            multiline={true}
+            numberOfLines={4}
+            style={styles.formTextArea}
+          />
+          <Button
+            raised
+            theme={{roundness: 3}}
+            mode="contained"
+            style={styles.button}
+            onPress={() => this.handleClick()}>
+            Create Todo
+          </Button>
+        </View>
+      </SafeAreaView>
     );
   }
 }
