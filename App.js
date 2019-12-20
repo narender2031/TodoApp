@@ -7,10 +7,9 @@
  */
 
 import React from 'react';
-import {SafeAreaView, StyleSheet} from 'react-native';
-import TodoScreen from './src/screens/TodoScreen';
 import {TodoSchema, SectionSchema} from './src/models/schema';
 import MyProvider from './src/context/MyProvider';
+import AppNavigator from './src/main/AppNavigator';
 
 const Realm = require('realm');
 class App extends React.Component {
@@ -38,21 +37,17 @@ class App extends React.Component {
 
   render() {
     return (
-      <>
-        <SafeAreaView style={styles.body}>
-          <MyProvider value={this.state.realm}>
-            <TodoScreen />
-          </MyProvider>
-        </SafeAreaView>
-      </>
+      <MyProvider value={this.state.realm}>
+        <AppNavigator />
+      </MyProvider>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
-});
+// const styles = StyleSheet.create({
+//   body: {
+//     flex: 1,
+//   },
+// });
 
 export default App;

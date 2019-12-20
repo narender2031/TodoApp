@@ -6,9 +6,6 @@ import {withTheme, Button, TextInput} from 'react-native-paper';
 import MyContext from '../context/MyContext';
 import RNPickerSelect from 'react-native-picker-select';
 
-// @TODO:
-// Create Todo with sections
-// user context
 const data = [
   {label: 'Personal', value: 'personal'},
   {label: 'Office', value: 'office'},
@@ -83,7 +80,7 @@ class TodoScreen extends React.Component {
       });
     } catch (error) {
       console.log(error);
-    } 
+    }
   }
 
   async createTodo(todoData, sections) {
