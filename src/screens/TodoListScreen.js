@@ -1,5 +1,6 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {StyleSheet, SafeAreaView, SectionList} from 'react-native';
+// import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 import MyContext from '../context/MyContext';
 import ListHeader from '../components/list/Header';
@@ -8,30 +9,17 @@ import ListItem from '../components/list/Item';
 const TodoListScreen = ({navigation}) => {
   const context = useContext(MyContext);
   const {realm} = context;
+  let sections = realm.objects('Section');
+  sections = sections.map(section => ({...section, data: section.todos}));
+
+  const [todos, setTodos] = useState(null);
+  const u = navigation.state.params
+    ? navigation.state.params.updatedAtTimestamp
+    : 1;
 
   useEffect(() => {
-    getTodoList();
-  });
-
-  const getTodoList = () => {
-    let sections = realm.objects('Section');
-    sections = formatedTodoList(sections);
-    return sections;
-  };
-
-  const formatedTodoList = sections => {
-    let todoList = [];
-    sections.map(section =>
-      todoList.push({
-        title: section.title,
-        createdAt: section.createdAt,
-        updatedAt: section.updatedAt,
-        is: section.id,
-        data: section.todos,
-      }),
-    );
-    return todoList;
-  };
+    setTodos(sections);
+  }, [u]);
 
   const handleClickOnTodo = todoId => {
     navigation.navigate('TodoDetails', {todoId: todoId});
@@ -40,13 +28,12 @@ const TodoListScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <SectionList
-        sections={getTodoList()}
+        sections={todos}
         renderItem={({item}) => (
           <ListItem
-            itemText={item.title}
-            itemDescription={item.text}
-            itemId={item.id}
+            item={item}
             handleClick={id => handleClickOnTodo(id)}
+            navigation={navigation}
           />
         )}
         renderSectionHeader={({section}) => (
@@ -56,7 +43,7 @@ const TodoListScreen = ({navigation}) => {
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

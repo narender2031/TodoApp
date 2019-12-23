@@ -19,6 +19,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    // Initialize RealM DB
     Realm.open({
       schema: [TodoSchema, SectionSchema],
       deleteRealmIfMigrationNeeded: true,
@@ -43,11 +44,5 @@ class App extends React.Component {
     );
   }
 }
-
-// const styles = StyleSheet.create({
-//   body: {
-//     flex: 1,
-//   },
-// });
 
 export default App;

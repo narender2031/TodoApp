@@ -4,59 +4,44 @@ import * as React from 'react';
 import {SafeAreaView, Text, StyleSheet, View} from 'react-native';
 import {withTheme, Button, TextInput} from 'react-native-paper';
 import MyContext from '../context/MyContext';
-import RNPickerSelect from 'react-native-picker-select';
+import DropDown from '../components/form/Dropdown';
+
+import {uniqueString} from '../util/uniqueString';
 
 const data = [
   {label: 'Personal', value: 'personal'},
   {label: 'Office', value: 'office'},
 ];
 
+const initialState = {
+  text: null,
+  title: null,
+  createdAt: null,
+  updatedAt: null,
+  status: null,
+  section: null,
+};
+
+const date = new Date();
+
 class TodoScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      text: null,
-      title: null,
-      createdAt: null,
-      updatedAt: null,
-      status: null,
-      section: null,
-    };
-  }
-
-  // read the todos
-  // get last todo
-  //
-  getUniqueId() {
-    let string = 'abcdefghijklmnopqrstuvwxyz';
-    let str = '';
-    for (let i = 1; i <= 6; i++) {
-      let randomCharacter = string.charAt(
-        Math.floor(Math.random() * string.length),
-      );
-      str += randomCharacter;
-    }
-    return str;
+    this.state = initialState;
   }
 
   handleClick() {
     const {title, text} = this.state;
     const todoObject = {
-      id: this.getUniqueId(),
+      id: uniqueString(),
       title: title,
       text: text,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      status: 'pending',
+      createdAt: date,
+      updatedAt: date,
+      status: 'Pending',
     };
 
-    this.setState({
-      text: null,
-      title: null,
-      createdAt: null,
-      updatedAt: null,
-      status: null,
-    });
+    this.setState(initialState);
     this.createSectionsOrTodo(todoObject);
   }
 
@@ -65,18 +50,20 @@ class TodoScreen extends React.Component {
   async createSectionsOrTodo(todoData) {
     try {
       this.context.realm.write(() => {
-        console.log(todoData);
         let section = this.context.realm.create(
           'Section',
           {
             title: this.state.section,
-            id: this.getUniqueId(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            id: uniqueString(),
+            createdAt: date,
+            updatedAt: date,
           },
           true,
         );
         section.todos.push(todoData);
+        this.props.navigation.navigate('Todolist', {
+          updatedAtTimestamp: date,
+        });
       });
     } catch (error) {
       console.log(error);
@@ -85,15 +72,9 @@ class TodoScreen extends React.Component {
 
   async createTodo(todoData, sections) {
     try {
-      // let section = this.context.realm
-      //   .objects('Section')
-      //   .filtered(`title = "${this.state.section}"`);
-      console.log(sections);
       let section = sections.find(
         record => record.title === this.state.section,
       );
-
-      console.log(section, 'sections');
       this.context.realm.write(() => {
         section.todos.push(todoData);
         console.log('success');
@@ -113,13 +94,9 @@ class TodoScreen extends React.Component {
           <Text style={{color: colors.primary}}>Create Todo</Text>
         </View>
         <View style={styles.formContainer}>
-          <RNPickerSelect
-            onValueChange={value => this.setState({section: value})}
-            items={data}
-            placeholder={{
-              label: 'Select the section',
-              value: null,
-            }}
+          <DropDown
+            updateDropDownValue={value => this.setState({section: value})}
+            data={data}
           />
           <TextInput
             label="Title"
