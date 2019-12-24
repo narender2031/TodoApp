@@ -19,37 +19,3 @@ export default () => {
   );
 };
 
-// class App extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {realm: null};
-//   }
-
-//   componentDidMount() {
-//     // Initialize RealM DB
-//     Realm.open({
-//       schema: [TodoSchema, SectionSchema],
-//       deleteRealmIfMigrationNeeded: true,
-//     }).then(realm => {
-//       this.setState({realm});
-//     });
-//   }
-
-//   componentWillUnmounted() {
-//     // Close the realm if there is one open
-//     const {realm} = this.state;
-//     if (realm !== null && !realm.isClosed) {
-//       realm.close();
-//     }
-//   }
-
-//   render() {
-//     return (
-//       <MyProvider value={this.state.realm}>
-//         <AppNavigator />
-//       </MyProvider>
-//     );
-//   }
-// }
-
-// export default App;
