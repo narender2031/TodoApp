@@ -1,14 +1,13 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {StyleSheet, SafeAreaView, SectionList, Text} from 'react-native';
-// import Swipeable from 'react-native-gesture-handler/Swipeable';
-
+import React, {useState} from 'react';
+import {StyleSheet, SafeAreaView, SectionList, View} from 'react-native';
 import ListHeader from '../components/list/Header';
 import ListItem from '../components/list/Item';
-import {RealmContext, useRealmQuery} from 'react-use-realm/dist/commonjs';
+import {useRealmQuery} from 'react-use-realm/dist/commonjs';
+import SearchBar from '../components/form/Search';
 
 const TodoListScreen = ({navigation}) => {
-  const context = useContext(RealmContext);
-  const {realm} = context;
+
+  const [searchValue, setSearchValue] = useState('');
 
   let sectionQuery = useRealmQuery({type: 'Section'});
   console.log(sectionQuery);
@@ -23,22 +22,35 @@ const TodoListScreen = ({navigation}) => {
     navigation.navigate('TodoDetails', {todoId: todoId});
   };
 
+  const searchTodo = value => {
+    setSearchValue(value);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <SectionList
-        sections={todos}
-        renderItem={({item}) => (
-          <ListItem
-            item={item}
-            handleClick={id => handleClickOnTodo(id)}
-            navigation={navigation}
-          />
-        )}
-        renderSectionHeader={({section}) => (
-          <ListHeader headerText={section.title} />
-        )}
-        keyExtractor={(item, index) => `${index}`}
-      />
+      <View>
+        <SearchBar
+          searchPlaceHolder="Search"
+          searchQuery={value => searchTodo(value)}
+          searchValue={searchValue}
+        />
+      </View>
+      <View>
+        <SectionList
+          sections={todos}
+          renderItem={({item}) => (
+            <ListItem
+              item={item}
+              handleClick={id => handleClickOnTodo(id)}
+              navigation={navigation}
+            />
+          )}
+          renderSectionHeader={({section}) => (
+            <ListHeader headerText={section.title} />
+          )}
+          keyExtractor={(item, index) => `${index}`}
+        />
+      </View>
     </SafeAreaView>
   );
 };
@@ -46,9 +58,7 @@ const TodoListScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
     margin: 20,
-    alignSelf: 'flex-start',
   },
 });
 
