@@ -3,11 +3,10 @@ import {List, Text} from 'react-native-paper';
 import {StyleSheet, Animated} from 'react-native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import {RectButton} from 'react-native-gesture-handler';
-import MyContext from '../../context/MyContext';
-
+import {RealmContext} from 'react-use-realm/dist/commonjs';
 
 const Item = ({item, handleClick, navigation}) => {
-  const context = useContext(MyContext);
+  const context = useContext(RealmContext);
   const {realm} = context;
 
   // delete

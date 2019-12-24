@@ -3,8 +3,9 @@
 import * as React from 'react';
 import {SafeAreaView, Text, StyleSheet, View} from 'react-native';
 import {withTheme, Button, TextInput} from 'react-native-paper';
-import MyContext from '../context/MyContext';
 import DropDown from '../components/form/Dropdown';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {RealmConsumer} from 'react-use-realm/dist/commonjs';
 
 import {uniqueString} from '../util/uniqueString';
 
@@ -30,7 +31,7 @@ class TodoScreen extends React.Component {
     this.state = initialState;
   }
 
-  handleClick() {
+  handleClick(realm) {
     const {title, text} = this.state;
     const todoObject = {
       id: uniqueString(),
@@ -42,15 +43,15 @@ class TodoScreen extends React.Component {
     };
 
     this.setState(initialState);
-    this.createSectionsOrTodo(todoObject);
+    this.createSectionsOrTodo(realm, todoObject);
   }
 
-  static contextType = MyContext;
+  // static contextType = RealmContext;
 
-  async createSectionsOrTodo(todoData) {
+  async createSectionsOrTodo(realm, todoData) {
     try {
-      this.context.realm.write(() => {
-        let section = this.context.realm.create(
+      realm.write(() => {
+        let section = realm.create(
           'Section',
           {
             title: this.state.section,
@@ -70,60 +71,54 @@ class TodoScreen extends React.Component {
     }
   }
 
-  async createTodo(todoData, sections) {
-    try {
-      let section = sections.find(
-        record => record.title === this.state.section,
-      );
-      this.context.realm.write(() => {
-        section.todos.push(todoData);
-        console.log('success');
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      console.log(sections);
-    }
-  }
-
   render() {
     const {colors} = this.props.theme;
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Text style={{color: colors.primary}}>Create Todo</Text>
-        </View>
-        <View style={styles.formContainer}>
-          <DropDown
-            updateDropDownValue={value => this.setState({section: value})}
-            data={data}
-          />
-          <TextInput
-            label="Title"
-            value={this.state.title}
-            onChangeText={title => this.setState({title})}
-            mode="outlined"
-            style={styles.formTextInput}
-          />
-          <TextInput
-            label="Text"
-            value={this.state.text}
-            onChangeText={text => this.setState({text})}
-            mode="outlined"
-            multiline={true}
-            numberOfLines={4}
-            style={styles.formTextArea}
-          />
-          <Button
-            raised
-            theme={{roundness: 3}}
-            mode="contained"
-            style={styles.button}
-            onPress={() => this.handleClick()}>
-            Create Todo
-          </Button>
-        </View>
-      </SafeAreaView>
+      <RealmConsumer>
+        {({realm}) => (
+          <SafeAreaView style={styles.container}>
+            <View style={styles.headerContainer}>
+              <Text style={{color: colors.primary}}>Create Todo</Text>
+            </View>
+            <KeyboardAwareScrollView
+              scrollEnabled={false}
+              keyboardShouldPersistTaps="handled"
+              enableOnAndroid={true}>
+              <View style={styles.formContainer}>
+                <DropDown
+                  updateDropDownValue={value => this.setState({section: value})}
+                  data={data}
+                />
+                <TextInput
+                  label="Title"
+                  value={this.state.title}
+                  onChangeText={title => this.setState({title})}
+                  mode="outlined"
+                  style={styles.formTextInput}
+                />
+                <TextInput
+                  label="Text"
+                  value={this.state.text}
+                  onChangeText={text => this.setState({text})}
+                  mode="outlined"
+                  multiline={true}
+                  numberOfLines={4}
+                  style={styles.formTextArea}
+                />
+                <Button
+                  raised
+                  theme={{roundness: 3}}
+                  mode="contained"
+                  style={styles.button}
+                  onPress={() => this.handleClick(realm)}>
+                  Create Todo
+                </Button>
+              </View>
+            </KeyboardAwareScrollView>
+          </SafeAreaView>
+          )
+        }
+      </RealmConsumer>
     );
   }
 }
@@ -137,6 +132,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 40,
   },
   formContainer: {
     marginBottom: 40,

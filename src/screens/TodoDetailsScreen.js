@@ -1,12 +1,13 @@
 import React, {useContext, useState} from 'react';
 import {StyleSheet, SafeAreaView, View} from 'react-native';
 import {withTheme, Button, Modal, Text, TextInput} from 'react-native-paper';
-import MyContext from '../context/MyContext';
+import {RealmContext} from 'react-use-realm/dist/commonjs';
 
 const TodoDetailsScreen = props => {
-  const context = useContext(MyContext);
+  const context = useContext(RealmContext);
+  const {realm} = context;
   const todoId = props.navigation.state.params.todoId;
-  const realm = context.realm;
+
 
   const todo = realm.objects('Todo').find(t => t.id === todoId);
 

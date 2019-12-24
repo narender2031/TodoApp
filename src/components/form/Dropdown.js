@@ -1,6 +1,6 @@
 import React from 'react';
-import RNPickerSelect, {defaultStyles} from 'react-native-picker-select';
-import {StyleSheet, Platform} from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
+import {StyleSheet} from 'react-native';
 
 const DropDown = ({updateDropDownValue, data}) => {
   return (
@@ -22,10 +22,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 4,
-    color: 'black',
     paddingRight: 30,
     height: 60,
     marginBottom: 15,
